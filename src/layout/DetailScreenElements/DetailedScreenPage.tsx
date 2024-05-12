@@ -6,11 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { getRepoLanguages } from '../../apiCalls/repoApis';
 import 'react-native-reanimated'
 import loadFonts from '../../utils/utils';
-
-
 import { LinearGradient } from 'expo-linear-gradient';
 import { Linking } from 'react-native';
-
 
 const DetailedScreen = ({ route }) => {
     const [languagesArray, setLanguagesArray] = useState<string[]>([]);
@@ -132,7 +129,8 @@ const styles = StyleSheet.create({
       marginTop: 10,
       paddingBottom: 10, 
       borderBottomWidth: 1,
-      borderBottomColor: '#DDDDDD' 
+      borderBottomColor: '#DDDDDD',
+      width: '100%'
     },
     icon: {
       width: 16,
@@ -156,7 +154,6 @@ const styles = StyleSheet.create({
       marginTop: 20,
       marginBottom: 16,
       fontFamily:'SF-Pro-Display-Bold',
-
     },
     language: {
       fontSize: 16,
@@ -178,7 +175,6 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontFamily:'SF-Pro-Display-Bold',
-
     }
   });
   

@@ -10,8 +10,6 @@ import debounce from 'lodash.debounce';
 import { LinearGradient } from 'expo-linear-gradient';
 import loadFonts from '../../utils/utils';
 
-
-
 interface RepoCardProps {
   name: string;
   description: string;
@@ -44,14 +42,14 @@ const SearchBarPage: React.FC<SearchBarPageProps> = ({ navigation }) => {
 
     const fetchRepositories = async () => {
         if (!query || query.length < MIN_QUERY_LENGTH || query === lastFetchedQuery) {
-            setLoading(false);
+            setLoading(false)
             return;
         }
-
         setLoading(true);
         const newCancelToken = axios.CancelToken.source();
         if (cancelToken) {
             cancelToken.cancel("Operation canceled due to new request.");
+            setLoading(true)
         }
         setCancelToken(newCancelToken);
 
@@ -70,20 +68,16 @@ const SearchBarPage: React.FC<SearchBarPageProps> = ({ navigation }) => {
             }));
             setRepos(filteredData);
             setLastFetchedQuery(query);
+            setLoading(false);
         } catch (error) {
             if (axios.isCancel(error)) {
-                console.log('Request canceled:', error.message);
+
             } else {
-                console.error('Error fetching repositories:', error);
-            }
-        } finally {
-            if (!axios.isCancel(Error)) {
+
                 setLoading(false);
             }
         }
     };
-
-
 
     const handleScroll = (event: { nativeEvent: { contentOffset: { y: any; }; }; }) => {
         const scrollOffset = event.nativeEvent.contentOffset.y;
@@ -105,6 +99,7 @@ useEffect(() => {
         debouncedFetchRepositories();
         setLoading(true)
     } else {
+        setLoading(false)
         setRepos([]);
     }
     return () => {
@@ -124,13 +119,6 @@ useEffect(() => {
     prepareResources();
 }, []);
 
-const topContainerStyle = {
-    borderBottomWidth: headerVisible ? 0 : 1,
-    borderBottomColor: '#ccc',
-    paddingBottom: headerVisible ? 0 : 10
-};
-
-
 if (!fontsLoaded) {
     return (
         <LinearGradient
@@ -146,60 +134,66 @@ if (!fontsLoaded) {
 }
 
 
-return (
-    <LinearGradient
-        colors={['#E3DCF0', '#F1F1F1']}  
-        start={{ x: 0, y: 0 }}  
-        end={{ x: 0, y: 1 }}  
-        style={styles.gradient}
-    >
-        <View style={styles.container}>
-            {headerVisible &&  
-            <View style={styles.containerHeader}>
-             <IconAnt name="github" size={40}/>
-             <Text style={styles.textHeader}>GitHub Repo Search</Text>
-             </View>}
-            <View style={styles.searchContainer}>
-                <Icon name="magnify" size={24} color="#000" />
-                <TextInput
-                    placeholder="Search"
-                    style={styles.searchInput}
-                    onChangeText={setQuery}
-                    onSubmitEditing={debouncedFetchRepositories}  
-                    value={query}
-                />
-                {query && (
-                    <TouchableOpacity onPress={clearSearch}>
-                        <Icon name="close" size={18} color="#A4A4A4" />
-                    </TouchableOpacity>
+    return (
+        <LinearGradient
+            colors={['#E3DCF0', '#F1F1F1']}  
+            start={{ x: 0, y: 0 }}  
+            end={{ x: 0, y: 1 }}  
+            style={styles.gradient}
+        >
+            <View style={styles.container}>
+                <View style={styles.headerAndSearchContainer}>
+                    {headerVisible &&  
+                    <View style={styles.containerHeader}>
+                        <IconAnt name="github" size={40}/>
+                        <Text style={styles.textHeader}>GitHub Repo Search</Text>
+                    </View>}
+                    <View style={[
+                        styles.searchBox,
+                        !headerVisible ? styles.border : {}
+                    ]}>
+                        <View style={styles.searchContainer}>
+                            <Icon name="magnify" size={24} color="#000" />
+                            <TextInput
+                                placeholder="Search"
+                                style={styles.searchInput}
+                                onChangeText={setQuery}
+                                value={query}
+                            />
+                            {query && (
+                                <TouchableOpacity onPress={clearSearch}>
+                                    <Icon name="close" size={18} color="#A4A4A4" />
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </View>
+                </View>
+                {loading ? (
+                    <ActivityIndicator size="large" color="grey" />
+                ) : (
+                    <FlatList
+                        data={repos}
+                        keyExtractor={(item, index) => `${item.login}${index}`}
+                        renderItem={({ item }) => (
+                            <RepoCard
+                                {...item}
+                                navigation={navigation}
+                                regularFont="SF-Pro-Display-Regular"
+                                mediumFont="SF-Pro-Display-Medium"
+                                boldFont="SF-Pro-Display-Bold"
+                                query={query}
+                            />
+                        )}
+                        showsVerticalScrollIndicator={false}
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
+                    />
                 )}
             </View>
-            {loading ? (
-                <ActivityIndicator size="large" color="grey" />
-            ) : (
-                <FlatList
-                    data={repos}
-                    keyExtractor={(item, index) => `${item.login}${index}`}
-                    renderItem={({ item }) => (
-                        <RepoCard
-                            {...item}
-                            navigation={navigation}
-                            regularFont="SF-Pro-Display-Regular"
-                            mediumFont="SF-Pro-Display-Medium"
-                            boldFont="SF-Pro-Display-Bold"
-                            query={query}
-                        />
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    onScroll={handleScroll}
-                    scrollEventThrottle={16}
-                />
-            )}
-        </View>
-    </LinearGradient>
-);
+        </LinearGradient>
+    );
+}
 
-};
 
 const styles = StyleSheet.create({
     gradient: {
@@ -225,6 +219,18 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 4,
     },
+    headerAndSearchContainer: {
+        width: '100%', 
+        alignItems: 'center', 
+    },
+    searchBox: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    border: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#D9D2E5',
+    },
     searchInput: {
         flex: 1,
         marginLeft: 10,
@@ -248,5 +254,6 @@ const styles = StyleSheet.create({
         fontFamily: 'SF-Pro-Display-Bold'  
       },
 });
+
 
 export default SearchBarPage;

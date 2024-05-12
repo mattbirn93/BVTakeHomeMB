@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import loadFonts from '../../utils/utils';
 
-
 interface RepoCardProps {
   description: string;
   name: string;
@@ -36,12 +35,6 @@ const RepoCard: React.FC<RepoCardProps> = ({
     boldFont,
     query
 }) => {
-
-
-    useEffect(()=>{
-        loadFonts()
-    },[])
-
     
   const highlightText = (text: string, query: string) => {
     if (!query) return <Text style={{ fontFamily: mediumFont }}>{text}</Text>;
@@ -49,7 +42,7 @@ const RepoCard: React.FC<RepoCardProps> = ({
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, index) => (
       part.toLowerCase() === query.toLowerCase() 
-      ? <Text key={index} style={{ fontFamily: boldFont, fontWeight: 'bold' }}>{part}</Text> 
+      ? <Text key={index} style={{ fontFamily: boldFont }}>{part}</Text> 
       : <Text key={index} style={{ fontFamily: mediumFont }}>{part}</Text>
     ));
   };
@@ -68,20 +61,20 @@ const RepoCard: React.FC<RepoCardProps> = ({
             stargazers_count,
         })}
     >
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Image source={{ uri: avatar_image }} style={styles.avatar} />
-          <Text numberOfLines={1} ellipsizeMode="tail">
-            <Text style={[styles.title, { fontFamily: mediumFont }]}>{login}/</Text>
-            <Text style={[styles.title, { fontFamily: mediumFont }]}>
-                {highlightText(name, query)}
-            </Text>
-          </Text>
-        </View>
-        <Text numberOfLines={2} ellipsizeMode="tail" style={[styles.subtitle, { fontFamily: regularFont }]}>
-          {description}
+       <View style={styles.card}>
+    <View style={styles.cardHeader}>
+      <Image source={{ uri: avatar_image }} style={styles.avatar} />
+      <View style={styles.titleContainer}>
+        <Text style={[styles.title, { fontFamily: mediumFont }]} numberOfLines={1} ellipsizeMode="tail">
+          {login}/
+          {highlightText(name, query)}
         </Text>
       </View>
+    </View>
+    <Text numberOfLines={2} ellipsizeMode="tail" style={[styles.subtitle, { fontFamily: regularFont }]}>
+      {description}
+    </Text>
+  </View>
     </TouchableOpacity>
   );
 };
@@ -104,10 +97,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  titleContainer: {
+    flex: 1,  
+},
   title: {
     fontSize: 14,
-    marginLeft: 10,
-    flex: 1,
   },
   subtitle: {
     fontSize: 14,
